@@ -7,7 +7,7 @@ toadfish_classifier_v4.mat = classifier from the above paper, trained on >20,000
 This is the recommended classifier. 
 
 
-Instructions and a brief tutorial are provided on the PerchPicker Wiki! 
+Instructions and a brief tutorial are provided on the ToadFishFinder Wiki! 
 https://github.com/drbohnen/ToadFishFinder/wiki
 
 
