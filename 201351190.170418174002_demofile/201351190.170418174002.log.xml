@@ -1,0 +1,115 @@
+<ST>
+<EVENT>
+<START STATE="NEW" />
+</EVENT>
+<CFG ID="0" FTYPE="xml">
+<BINFILE TIME="12:01:50" DATE="May  5 2016"  VER="1.1.0.4">  </BINFILE>
+</CFG>
+<EVENT>
+<START> TIM </START>
+</EVENT>
+<EVENT>
+<HARDWARE_ID> ST300 </HARDWARE_ID>
+</EVENT>
+<EVENT>
+<MSPVER> 211 </MSPVER>
+</EVENT>
+<EVENT>
+<INT_BATT UNITS="mV"> 3818 </INT_BATT>
+</EVENT>
+<EVENT>
+<EX_BATT UNITS="mV"> 59 </EX_BATT>
+</EVENT>
+<EVENT>
+<TEMPERATURE UNITS="DegCx100"> 1902 </TEMPERATURE>
+</EVENT>
+<EVENT>
+<AUDIO GAIN="HIGH" />
+</EVENT>
+<EVENT>
+<AUDIO HPASS="OFF" />
+</EVENT>
+<CFG ID="1">
+<PROC> AUDIO </PROC>
+<CHANBITMAP> 1 </CHANBITMAP>
+<BAND> HF1 </BAND>
+<FS UNIT="Hz"> 288000 </FS>
+<NBITS> 16 </NBITS>
+</CFG>
+<EVENT>
+<AUDIO GAIN="HIGH" />
+</EVENT>
+<CFG ID="2">
+<SRC ID="1" />
+<PROC> DECM </PROC>
+<DF> 3 </DF>
+<NF> 42 </NF>
+</CFG>
+<CFG ID="3" FTYPE="X3V2">
+<SRC ID="2" />
+<BLKLEN> 16 </BLKLEN>
+<NCHS> 1 </NCHS>
+<FILTER> diff </FILTER>
+<NBITS> 16 </NBITS>
+<CODE THRESH="2"> RICE0 </CODE>
+<CODE THRESH="7"> RICE1 </CODE>
+<CODE THRESH="19"> RICE3 </CODE>
+<CODE> BFP </CODE>
+</CFG>
+<CFG ID="4" FTYPE="wav" CODEC="3">
+<SRC ID="3" />
+<FS> 96000 </FS>
+<NBITS> 16 </NBITS>
+<NCHS> 1 </NCHS>
+<SUFFIX> wav </SUFFIX>
+<TIMECHK> 0 </TIMECHK>
+</CFG>
+<CFG ID="5" FTYPE="csv">
+<PROC> SEN </PROC>
+<SUFFIX> temp </SUFFIX>
+<HEADER> unix time, degrees C </HEADER>
+<PERIOD UNIT="s"> 20352 </PERIOD>
+</CFG>
+<EVENT>
+<AUDIO MUTE="1" />
+</EVENT>
+<EVENT>
+<AUDIO CHANBITMAP="1" RUN="1" />
+</EVENT>
+<EVENT>
+<AUDIO MUTE="0" />
+</EVENT>
+<EVENT>
+<AUDIO CHANBITMAP="1" RUN="0" />
+</EVENT>
+<EVENT>
+<END STATE="CLOSE" />
+</EVENT>
+<PROC_EVENT ID="4">
+<WavFileHandler OffloaderTimeZone="Eastern Standard Time"/>
+</PROC_EVENT>
+<PROC_EVENT ID="4">
+<WavFileHandler SamplingStartTimeLocal="4/18/2017 5:40:04 PM"/>
+</PROC_EVENT>
+<PROC_EVENT ID="4">
+<WavFileHandler SamplingStartTimeUTC="4/18/2017 9:40:04 PM"/>
+</PROC_EVENT>
+<PROC_EVENT ID="4">
+<WavFileHandler SamplingStartTimeUnix="1492551604.01246"/>
+</PROC_EVENT>
+<PROC_EVENT ID="4">
+<WavFileHandler SamplingStopTimeUTC="4/18/2017 9:42:11 PM"/>
+</PROC_EVENT>
+<PROC_EVENT ID="4">
+<WavFileHandler SamplingStopTimeLocal="4/18/2017 5:42:11 PM"/>
+</PROC_EVENT>
+<PROC_EVENT ID="4">
+<WavFileHandler SamplingStopTimeUnix="1492551731.89457"/>
+</PROC_EVENT>
+<PROC_EVENT ID="4">
+<WavFileHandler SamplingTimePeriod="127882109 us"/>
+</PROC_EVENT>
+<PROC_EVENT ID="4">
+<WavFileHandler SampleCount="12279032"/>
+</PROC_EVENT>
+</ST>

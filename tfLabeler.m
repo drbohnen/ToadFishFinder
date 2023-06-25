@@ -1,7 +1,7 @@
 function tfLabeler(v24,station, filename, starttime, rootdir) 
 % 
 % Function lets you assign labels to detected candidate boatwhistle calls 
-% and save labeled scalograms in subfolders 'bwhistle', 'other', noisy' 
+% and save labeled spectrograms in subfolders 'bwhistle', 'other', noisy' 
 % 
 % tfLabel(v24, station, filename, starttime, rootdirectory) 
 %
@@ -9,13 +9,14 @@ function tfLabeler(v24,station, filename, starttime, rootdir)
 %   v24 = 24kHz sampled waveform; pressure corrected, unfiltered 
 %           (e.g., 2 min record) 
 %   station = e.g.,'C2'
-%   fname = file name, e.g., '1074286637.190619031500.wav' used in file name
-%   starttime = start time of vector, e.g., [yyyy,mm,dd,hh,MM,ss] 
-%   rootdir = where to store the labeled subfolders 
+%   fname = filename,e.g.,'1074286637.190619031500.wav' used to name output
+%   starttime = start time of vector, e.g., [yyyy,mm,dd,hh,MM,ss] used to
+%   name output 
+%   rootdir = where to store the labeled subfolders with spectrograms 
 %
 % HOW TO USE 
 %   y=audioread('1074286637.190619040000.wav');
-%   y=resample(y,1,2);  % assume original 48kHz 
+%   y=resample(y,1,2);  % assume original 48kHz (or 1,4 if 96 kHz) 
 %   gain = 169; % typical for ST instrument 
 %   y=(y-mean(y))*(10^(gain/20));  % for soundtrap instrument
 %   tfLabeler(y,'S1','1074286637.190619040000.wav',[2019,06,19,04,00,00],'labeledTF');
@@ -26,8 +27,8 @@ function tfLabeler(v24,station, filename, starttime, rootdir)
 %
 % AUTHOR: 
 % D. Bohnenstiehl (NCSU) 
-% ToadFish Finder v.1 
-% Oct 2022  
+% ToadFish Finder v.1.1 
+% June 2023 
 
 close all
 fs=24000; 
@@ -57,14 +58,14 @@ fs=24000;
  %% detector parameter settings
 s=10; %standard deviation of harmonic for detection kernel (Hz)
 sweep=3; % sweep applied to F1 harmonic (hz) 
-Frange=[100 400];     % min and max range of the first harmonic 
+Frange=[100 380];     % min and max range of the first harmonic 
                       % The actual bin centers are selected based on 
                       % the frequency resolution of the spectrogram 
 thres=0.25;  % detection threshold used for 'MinPeakHeight' of correlation coefficient  
              % note that the 'MinPeakProminence' is defined as thres/3 
 
   %% run the match filter detector 
-  [tmp,ffreq,~,score]=tfMatchedFilterDet(v24,Frange,s,sweep,thres, 250,250, 0);
+  [tmp,ffreq,score]=tfMatchedFilterDet(v24,Frange,s,sweep,thres, 220,150, 0);
   events=round(fs*tmp');  % in number of samples 
   events(events+0.45*fs >= length(v24))=length(v24)-0.45*fs; 
   etimes = events/fs;     % time in seconds within file 

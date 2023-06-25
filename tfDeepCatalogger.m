@@ -1,5 +1,6 @@
 function [predictedLabels, DetTime, Bcount, Ocount]=tfDeepCatalogger(v24,station,fileID,rootdir,classifier,predffreq,predffreq_uncert,deleteflag,fstartdatetime) 
-%  [predictedLabels, DetTime, Bcount, Ocount]=tfDeepCatalogger(v24,station,...
+%  
+% [predictedLabels, DetTime, Bcount, Ocount]=tfDeepCatalogger(v24,station,...
 %             fileID,rootdir,classifier,predffreq,predffreq_uncert,...
 %             deleteflag,fstartdatetime) 
 %
@@ -12,6 +13,15 @@ function [predictedLabels, DetTime, Bcount, Ocount]=tfDeepCatalogger(v24,station
 %           e.g., 'detectionfolder' 
 % classifier = the name of the classification object (pre-loaded into 
 % workspace) 
+%
+% predffreq and predffreq_uncert are estimates of the fundamental frequency
+% and the +/- range (Hz) over which you want to apply a weight of 1 to the
+% kernel cross correlations.  Units of Hz. 
+% 
+% To apply w = 1 to all kernel frequencies, use the center frequency 
+% of 220 and range of 120.  The lower cutoff predffreq-predffreq_uncert
+% highcutoff = predffreq+predffreq_uncert; 
+%
 % deleteflag = 'bwhistle', 'other', 'all', 'none' - specify which
 % spectrograms NOT to keep for review.  So, 'none', keeps everything.     
 %
@@ -28,20 +38,22 @@ function [predictedLabels, DetTime, Bcount, Ocount]=tfDeepCatalogger(v24,station
 %    predffreq,predffreq_uncert'none',[2017,10,20,2,00,0]);
 % 
 %  Note that the frequency range, sweep and standard deviation (width) of 
-%  kernels, as well as detection threshold can be edit in the code 
-%  near line 39. 
+%  kernels, as well as detection threshold can be edit in the 'detector
+%  paramater settings' block at the top of this function. 
+% 
 %     Defaults are: 
 %     s=10;    % standard deviation of harmonic (Hz) width 
 %     sweep=3; % sweep applied to F1 harmonic (hz)  
 %     Frange=[100 339];   % min and max range of the first harmonic 
 %     thres=0.25;         % detection threshold for peak detection 
 %
+%  Calls the fuctions tfMatchedFilterDet,tfMakespectro
+%
 % D. Bohnenstiehl 
-% Toadfish Finder v.1
-% Jan 2023  
+% Toadfish Finder v.1.1
+% June 2023  
  
-%% input detector parameter settings
-%% power user options 
+%% detector parameter settings
 s=10; %standard deviation of harmonic for detection kernel (Hz)
 sweep=3; % sweep applied to F1 harmonic (hz) 
 Frange=[100 339];   % min and max range of the first harmonic 
@@ -53,8 +65,8 @@ Frange=[100 339];   % min and max range of the first harmonic
                       % call from this function. 
 ploton=0;    % ploton=1 plots generated, ploton=0 plots not generated
 thres=0.25;  % detection threshold for peak detection routine  
-             % peak prominance for peak detection is set to thres/3 in matched 
-             % filter detector: tfMatchedFilterDet
+             % peak prominance for peak detection is set to thres/3 in 
+             % matched filter detector: tfMatchedFilterDet.m 
 
 
 %% make directories to hold the image files and outputs 
