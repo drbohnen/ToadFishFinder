@@ -1,16 +1,15 @@
-% This is the function used to train a new ToadFishFinder classifier 
+% This is the function use to train a new classifier 
 % AUTHORS: 
 % D. Bohnenstiehl (NCSU) 
-% toadfish finder v.1.1 
-% June 2023  
+% toadfish finder v.1 
+% 29 Sept 22 
 
 %% Load the scalogram images as a datastore, folder name  = labels 
-% where TF_Training_v4 has subfolders with names bwhistle and other 
 imds = imageDatastore('TF_Training_v4', 'LabelSource', 'foldernames', 'IncludeSubfolders',true);
-imds=shuffle(imds);  % mix the up - just for good measure 
+imds=shuffle(imds);  % mix the up 
 tbl = countEachLabel(imds)
 
-%% Generate a sheet of random labeled images 
+%% generate a sheet of examples 
 bwhistle = find(imds.Labels == 'bwhistle');other = find(imds.Labels == 'other');
 nP=table2array(tbl(1,2));
 nO=table2array(tbl(2,2));
