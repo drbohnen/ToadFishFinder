@@ -1,4 +1,14 @@
-imds = imageDatastore('training', 'LabelSource', 'foldernames', 'IncludeSubfolders',true);
+% This script reads a folder of labeled data with subfolder.
+% Calculated ResNet-50 activations and displays a TSNE ordination  
+% 
+% ToadFishFinder v1.1 
+% D. Bohnenstiehl 
+% June 2023 
+% 
+
+imds = imageDatastore('TF_Training_v4', 'LabelSource', 'foldernames', 'IncludeSubfolders',true);
+% Where 'TF_Training_v4' has subfolders 'other' and 'bwhistle' that hosted
+% labeled spectrogram images. 
 
 net = resnet50();
 % get training features 

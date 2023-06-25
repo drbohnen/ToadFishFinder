@@ -1,67 +1,47 @@
-% This is the function use to train a new classifier 
+% This is the function used to train a new ToadFishFinder classifier 
 % AUTHORS: 
 % D. Bohnenstiehl (NCSU) 
-% toadfish finder v.1 
-% 29 Sept 22 
+% toadfish finder v.1.1 
+% June 2023  
 
 %% Load the scalogram images as a datastore, folder name  = labels 
-imds = imageDatastore('training', 'LabelSource', 'foldernames', 'IncludeSubfolders',true);
-imds=shuffle(imds);  % mix the up 
+% where TF_Training_v4 has subfolders with names bwhistle and other 
+imds = imageDatastore('TF_Training_v4', 'LabelSource', 'foldernames', 'IncludeSubfolders',true);
+imds=shuffle(imds);  % mix the up - just for good measure 
 tbl = countEachLabel(imds)
 
-%% generate a sheet of examples 
-boat = find(imds.Labels == 'boat');other = find(imds.Labels == 'other');
-
+%% Generate a sheet of random labeled images 
+bwhistle = find(imds.Labels == 'bwhistle');other = find(imds.Labels == 'other');
 nP=table2array(tbl(1,2));
 nO=table2array(tbl(2,2));
 figure
+for i=1:16 
+subplot(4,4,i); imshow(readimage(imds,bwhistle(randi(nP,1)))); title('bwhistle example')
+end
 figure
-for i=1:12 
-subplot(4,3,i); imshow(readimage(imds,boat(randi(nP,1)))); title('boat example')
+for i=1:16 
+subplot(4,4,i); imshow(readimage(imds,other(randi(nO,1)))); title('other example')
 end
 
-figure
-for i=1:12 
-subplot(4,3,i); imshow(readimage(imds,other(randi(nO,1)))); title('other example')
-end
-
-
-% Use splitEachLabel method to trim the set.
+%% Use splitEachLabel method to trim the set.
 minSetCount = min(tbl{:,2});
 imds = splitEachLabel(imds, minSetCount, 'randomize');
 
-% Load pretrained network
+%% Load pretrained network
 net = resnet50();
 
-%Prepare Training and Test Image Sets
+%% Prepare Training and Test Image Sets
 [trainingSet, testSet] = splitEachLabel(imds, 0.7, 'randomize');
 
-
-% Get Training Features 
+%% Get Training Features 
 featureLayer = 'fc1000';
 trainingFeatures = activations(net,trainingSet, featureLayer, ...
     'MiniBatchSize', 32, 'OutputAs', 'columns');
 
-
-% Get training labels from the trainingSet
+%% Get training labels from the trainingSet
 trainingLabels = trainingSet.Labels;
 
-
-% % Define classifier options and trains the classifier.
-% classifier1 = fitcsvm(...
-%     trainingFeatures', ...
-%     trainingLabels, ...
-%     'KernelFunction', 'polynomial', ...
-%     'PolynomialOrder', 3, ...
-%     'KernelScale', 'auto', ...
-%     'BoxConstraint', 1, ...
-%     'Standardize', true, ...
-%     'ClassNames', categorical({'other'; 'boat'})); 
-
-
-
-
-% WEIGHTED COST FUNCTION Define classifier options and trains the classifier.
+%% Define classifier options and trains the classifier.
 classifier1 = fitcsvm(...
     trainingFeatures', ...
     trainingLabels, ...
@@ -71,30 +51,35 @@ classifier1 = fitcsvm(...
     'BoxConstraint', 1, ...
     'Standardize', true, ...
     'Cost',[0 1;1 0],...
-    'ClassNames', categorical({'other'; 'boat'}))
+    'ClassNames', categorical({'other'; 'bwhistle'}))
 
+%% estimate posterior probability from scores 
+classifier = fitSVMPosterior(classifier1, 'KFold',10);  
 
-
-
-
-
-
-
-classifier = fitSVMPosterior(classifier1);  % estimate posterior probability from scores 
+%% False positive vs. true positive rate 
+[~,scores1] = resubPredict(classifier);
+[x,y,~,auc] = perfcurve(trainingLabels,scores1(:,2),'bwhistle');
+auc
+figure; 
+plot(x,y)
+xlabel('False positive rate') 
+ylabel('True positive rate')
+title('AUC')
+ylim([0.975,1.0005])
+xlim([-0.01,1]); grid on; 
 
 %%  apply to training data 
 [predictedLabels,TrainingScores] = predict(classifier, trainingFeatures, 'ObservationsIn', 'columns');
 
 % Get the known labels
-traiingLabels = trainingSet.Labels;
+trainingLabels = trainingSet.Labels;
 
 % Tabulate the results using a confusion matrix.
-confMat = confusionmat(traiingLabels, predictedLabels);
-
+confMat = confusionmat(trainingLabels, predictedLabels);
 disp('results for training data')
+
 % Convert confusion matrix into percentage form
 confMat = bsxfun(@rdivide,confMat,sum(confMat,2))
-% 
 
 
 %% calculate k-folds cross model 
@@ -111,13 +96,11 @@ classifier2 = fitcsvm(...
     'BoxConstraint', 1, ...
     'Standardize', true, ...
     'KFold',10,...
-    'ClassNames', categorical({'other'; 'boat'})); 
+    'ClassNames', categorical({'other'; 'bwhistle'})); 
 
 predictionkfold = kfoldPredict(classifier2);
-confMat = confusionmat(traiingLabels, predictionkfold);
+confMat = confusionmat(trainingLabels, predictionkfold);
 confMat = bsxfun(@rdivide,confMat,sum(confMat,2))
-
-
 
 %%  apply to test data set 
 % Extract test features using the CNN
@@ -142,3 +125,6 @@ cm=confusionchart(testLabels, predictedLabels)
 cm.ColumnSummary = 'column-normalized';
 cm.RowSummary = 'row-normalized';
 cm.Title = 'Test Data Confusion Matrix'
+
+%% uncomment to save the classifier 
+% save tfclassifer_vX.mat classifier 
